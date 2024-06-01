@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <meta charset="UTF-8">
+  <title>Chore Assignment Form</title>
+  <style>
+    .field-group { margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+  <h2>Chore Assignment</h2>
+  <form method="post" id="assignment-form">
+    <div id="people-group">
+      <h3>People:</h3>
+      <div class="field-group">
+        <input type="text" name="people[]" required>
+        <button type="button" class="add-field" data-type="people">+</button>
+      </div>
+    </div>
+
+    <div id="emails-group">
+      <h3>Emails:</h3>
+      <div class="field-group">
+        <input type="email" name="emails[]" required>
+        <button type="button" class="add-field" data-type="emails">+</button>
+      </div>
+    </div>
+    
+    <div id="chores-group">
+      <h3>Chores:</h3>
+      <div class="field-group">
+        <input type="text" name="chores[]" required>
+        <button type="button" class="add-field" data-type="chores">+</button>
+      </div>
+    </div>
+
+    <input type="submit" value="Submit">
+  </form>
+
+  <button id="stop-btn">Stop Emails</button>
+  <p id="email-status">Status: Idle</p>
+
+  <script>
+    // Dynamic field addition
+    $('.add-field').click(function() {
+        var fieldType = $(this).data('type');
+        var fieldGroup = $('<div>', {'class': 'field-group'});
+        var inputType = fieldType === 'emails' ? 'email' : 'text';
+        fieldGroup.append($('<input>', {
+          type: inputType,
+          name: fieldType + '[]',
+          required: true
+        }));
+
+        fieldGroup.append($('<button>', {
+          text: '-',
+          type: 'button',
+          class: 'remove-field',
+          click: function() { $(this).parent('.field-group').remove(); }
+        }));
+
+        $('#' + fieldType + '-group').append(fieldGroup);
+    });
+
+    // Update status function
+    function updateStatus() {
+      $.get('/status', function(data) {
+        $('#email-status').text('Status: ' + data);
+      });
+    }
+    
+    // Call updateStatus every 5 seconds
+    setInterval(updateStatus, 5000);
+
+    // Stop button action
+    $('#stop-btn').click(function() {
+      $.post('/stop', function() {
+        alert('Emailing stopped!');
+      });
+    });
+  </script>
+</body>
+</html>
